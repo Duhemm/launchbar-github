@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleIdentifier</key>
+	<string>com.duhemm.Launchbar.github</string>
+	<key>CFBundleName</key>
+	<string>GitHub</string>
+	<key>CFBundleVersion</key>
+	<string>1.0</string>
+	<key>CFBundleIconFile</key>
+	<string>github.png</string>
+	<key>LBDebugLogEnabled</key>
+	<false/>
+	<key>LBTextInputTitle</key>
+	<string>Enter a GitHub user name</string>
+	<key>LBScripts</key>
+	<dict>
+		<key>LBDefaultScript</key>
+		<dict>
+			<key>LBScriptName</key>
+			<string>default.js</string>
+			<key>LBRunInBackground</key>
+			<false/>
+			<key>LBRequiresArgument</key>
+			<true/>
+			<key>LBAcceptedArgumentTypes</key>
+			<array>
+			  <string>string</string>
+			</array>
+			<key>LBReturnsResult</key>
+			<true/>
+			<key>LBLiveFeedbackEnabled</key>
+			<true/>
+		</dict>
+	</dict>
+	<key>LBDescription</key>
+	<dict>
+		<key>LBSummary</key>
+		<string>Browse GitHub using LaunchBar.</string>
+		<key>LBAuthor</key>
+		<string>Martin Duhem</string>
+		<key>LBEmail</key>
+		<string>martin.duhem@epfl.ch</string>
+		<key>LBArgument</key>
+		<string>Query</string>
+	</dict>
+</dict>
+</plist>
