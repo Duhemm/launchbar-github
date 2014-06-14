@@ -240,8 +240,16 @@ function getIssues(user, repo) {
  */
 function displayIssues(user, repo) {
   var issues = getIssues(user, repo);
+  var repo = getRepo(user, repo);
 
-  return issues.map(function (issue) {
+  var issuesLink = {
+    'title': "View all issues",
+    'subtitle': repo.html_url + "/issues",
+    'icon': 'link.png',
+    'url': repo.html_url + "/issues"
+  };
+
+  return [issuesLink].concat(issues.map(function (issue) {
     return {
       'title': "#" + issue.number + ": " + issue.title,
       'subtitle': issue.body,
@@ -250,7 +258,7 @@ function displayIssues(user, repo) {
       'actionArgument': user + " " + repo + " #" + issue.number,
       'actionReturnsItems': true
     }
-  });
+  }));
 }
 
 /**
@@ -271,8 +279,16 @@ function getPullRequests(user, repo) {
  */
 function displayPullRequests(user, repo) {
   var pulls = getPullRequests(user, repo);
+  var repo = getRepo(user, repo);
 
-  return pulls.map(function (pull) {
+  var pullsLink = {
+    'title': "View all pull requests",
+    'subtitle': repo.html_url + "/pulls",
+    'icon': 'link.png',
+    'url': repo.html_url + "/pulls"
+  };
+
+  return [pullsLink].concat(pulls.map(function (pull) {
     return {
       'title': "#" + pull.number + ": " + pull.title,
       'subtitle': pull.body,
@@ -281,7 +297,7 @@ function displayPullRequests(user, repo) {
       'actionArgument': user + " " + repo + " #" + pull.number,
       'actionReturnsItems': true
     }
-  })
+  }));
 }
 
 /**
