@@ -202,9 +202,10 @@ if($arg == NULL || !isset($arg->action)) {
 						echo json_encode(array(
 							'title' => 'Unknown action'
 						));
+						break;
 				}
 
-				$arg->action = "noaction";
+				exit(0);
 			} else {
 				$arg->user = new User($parts[0]);
 				$arg->repos = $arg->user->getRepos();
@@ -222,7 +223,7 @@ if($arg == NULL || !isset($arg->action)) {
 					'title' => 'The authentication token has been registered !'
 				));
 
-				$arg->action = "noaction";
+				exit(0);
 
 			} else {
 

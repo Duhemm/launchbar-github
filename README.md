@@ -1,9 +1,6 @@
 # GitHub action for LaunchBar 6
 
-
-**This action is still work in progress !**
-
-At the moment, authentication is not supported, which means that you are roughly limited to 60 queries per hour by the GitHub API.
+**Authentication is now supported !** (See below)
 
 ![Overview](http://s24.postimg.org/z49peix7p/Screen_Shot_2014_06_14_at_00_06_20.png)
 
@@ -13,7 +10,17 @@ At the moment, authentication is not supported, which means that you are roughly
  2. Place `launchbar-github.lbaction` in `~/Library/Application Support/LaunchBar/Actions`
  3. Type `github` in LaunchBar
 
+## How to authenticate ?
+
+ 1. Create a [personnal access token](https://github.com/settings/applications). Name it "GitHub for LaunchBar" and leave the default permissions.
+ 2. Copy the personnal access token in your clipboard, and type in the GitHub action for LaunchBar : `!login <paste-your-token>`
+ 3. You're authenticated ! If everything went well, you should see all your repos by typing `my` in GitHub action for LaunchBar.
+
+To log out, simply type `!logout`.
+
 ## What's supported ?
+
+ * Authentication !
 
  * Get the repositories of a user  
    ![Get the repositories](http://s28.postimg.org/6qyjk2zzx/Screen_Shot_2014_06_14_at_00_05_42.png)
@@ -29,6 +36,22 @@ At the moment, authentication is not supported, which means that you are roughly
 
  * Show the branches of a repository  
    ![Branches](http://s28.postimg.org/n4rpupuwt/Screen_Shot_2014_06_14_at_00_11_29.png)
+
+## Comprehensive list of supported inputs :
+
+Please note that `username repo` and `username/repo` are equivalent.
+
+ * `!login <your-access-token>` will register the token so that it is used for all queries.
+ * `!logout` will remove the token. All subsequent queries won't use it.
+ * `!empty` will empty the cache.
+ * `my` will list your repositories.
+ * `my repo` will list all your repositories whose name contain `repo` or actions related to `repo`.
+ * `username` will display all repositories from `username`.
+ * `username repo` will list all repostories from `username` whose name contain `repo` or actions related to `repo`.
+ * `username repo i[ssues]` will display issues from `username/repo` (can be shortened).
+ * `username repo p[ulls]` will display pull requests from `username/repo` (can be shortened).
+ * `username repo b[ranches]` will display branches from `username/repo` (can be shortened).
+ * `username repo #XYZ` will display the discussion about issue `#XYZ`.
 
 ## Thanks to...
 
