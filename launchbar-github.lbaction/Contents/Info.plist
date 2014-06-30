@@ -19,7 +19,7 @@
 		<key>LBDefaultScript</key>
 		<dict>
 			<key>LBScriptName</key>
-			<string>default.js</string>
+			<string>default.php</string>
 			<key>LBRunInBackground</key>
 			<false/>
 			<key>LBRequiresArgument</key>
