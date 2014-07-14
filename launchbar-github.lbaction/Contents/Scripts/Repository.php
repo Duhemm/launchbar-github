@@ -49,7 +49,9 @@ class Repository {
 			'subtitle' => $this->description,
 			'icon' => 'repo.png',
 			'action' => 'default.php',
-			'actionArgument' => array('user' => $this->user->getName(), 'repo' => $this->name, 'action' => 'showActions'),
+			'user' => $this->user->getName(),
+			'repo' => $this->name,
+			'act' => 'showActions',
 			'actionReturnsItems' => true
 		);
 
@@ -170,7 +172,9 @@ class Repository {
 				'title' => "Issues",
 				'icon' => 'issues.png',
 				'action' => 'default.php',
-				'actionArgument' => array('user' => $this->user->getName(), 'repo' => $this->name, 'action' => 'issues'),
+				'user' => $this->user->getName(),
+				'repo' => $this->name,
+				'act' => 'issues',
 				'actionReturnsItems' => true
 			);
 		}
@@ -179,7 +183,9 @@ class Repository {
 			'title' => "Pull requests",
 			'icon' => 'pulls.png',
 			'action' => 'default.php',
-			'actionArgument' => array('user' => $this->user->getName(), 'repo' => $this->name, 'action' => 'pulls'),
+			'user' => $this->user->getName(),
+			'repo' => $this->name,
+			'act' => 'pulls',
 			'actionReturnsItems' => true
 		);
 
@@ -187,7 +193,9 @@ class Repository {
 			'title' => "Branches",
 			'icon' => 'branches.png',
 			'action' => 'default.php',
-			'actionArgument' => array('user' => $this->user->getName(), 'repo' => $this->name, 'action' => 'branches'),
+			'user' => $this->user->getName(),
+			'repo' => $this->name,
+			'act' => 'branches',
 			'actionReturnsItems' => true
 		);
 

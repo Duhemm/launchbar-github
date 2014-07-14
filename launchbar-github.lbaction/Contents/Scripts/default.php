@@ -37,7 +37,7 @@ function issueNumber($number) {
  * @param  StdClass $arg Object describing what to do : repo, user, action, ...
  */
 function run($arg) {
-	switch($arg->action) {
+	switch($arg->act) {
 		case 'showRepos':
 			$formattedRepos = array();
 			foreach($arg->repos as $repo) {
@@ -136,11 +136,11 @@ function run($arg) {
 			$matching = array();
 
 			foreach($existingActions as $action) {
-				if(stripos($action, $arg->action) !== false) $matching[] = $action;
+				if(stripos($action, $arg->act) !== false) $matching[] = $action;
 			}
 
 			if(count($matching) == 1) {
-				$arg->action = $matching[0];
+				$arg->act = $matching[0];
 				run($arg);
 			} else {
 				$output = array();
@@ -154,7 +154,9 @@ function run($arg) {
 						'title' => $match,
 						'icon' => $match . '.png',
 						'action' => 'default.php',
-						'actionArgument' => array('user' => $arg->user->getName(), 'repo' => $arg->repo->getName(), 'action' => $match),
+						'user' => $arg->user->getName(),
+						'repo' => $arg->repo->getName(),
+						'act' => $match,
 						'actionReturnsItems' => true
 					);
 				}
@@ -174,7 +176,7 @@ array_shift($argv);
 $arg = json_decode($argv[0]);
 
 // If the received argument was not JSON, construct an object describing the action
-if($arg == NULL || !isset($arg->action)) {
+if($arg == NULL || !isset($arg->act)) {
 	$parts = array_filter(array_map("trim", preg_split("#[/\s]+#", $argv[0])), "notEmpty"); // Split at slashes and spaces
 	$arg = new stdClass;
 	switch(count($parts)) {
@@ -209,7 +211,7 @@ if($arg == NULL || !isset($arg->action)) {
 			} else {
 				$arg->user = new User($parts[0]);
 				$arg->repos = $arg->user->getRepos();
-				$arg->action = "showRepos";
+				$arg->act = "showRepos";
 			}
 			break;
 
@@ -235,17 +237,17 @@ if($arg == NULL || !isset($arg->action)) {
 						echo json_encode(array(
 							'title' => 'No such repository !',
 						));
-						$arg->action = "noaction";
+						$arg->act = "noaction";
 						break;
 
 					case 1:
 						$arg->repo = $foundRepos[0];
-						$arg->action = "showActions";
+						$arg->act = "showActions";
 						break;
 
 					default:
 						$arg->repos = $foundRepos;
-						$arg->action = "showRepos";
+						$arg->act = "showRepos";
 						break;
 				}
 			}
@@ -259,15 +261,15 @@ if($arg == NULL || !isset($arg->action)) {
 
 			if($parts[2][0] == "#") {
 				$arg->issue = $arg->repo->getIssue(issueNumber($parts[2]));
-				$arg->action = "showIssue";
+				$arg->act = "showIssue";
 			} else {
-				$arg->action = $parts[2];
+				$arg->act = $parts[2];
 			}
 			break;
 
 		case 0:
 		default:
-			$arg->action = "noaction";
+			$arg->act = "noaction";
 			break;
 	}
 }

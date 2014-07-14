@@ -34,12 +34,10 @@ class PullRequest {
 			$output['url'] = $this->html_url;
 		} else {
 			$output['action'] = 'default.php';
-			$output['actionArgument'] = array(
-				'user' => $this->repo->getUser()->getName(),
-				'repo' => $this->repo->getName(),
-				'action' => 'showIssue', // Not a typo, all PRs are associated to an issue on GH
-				'issue' => $this->number
-			);
+			$output['user'] = $this->repo->getUser()->getName();
+			$output['repo'] = $this->repo->getName();
+			$output['act'] = 'showIssue'; // Not a typo, all PRs are associated to an issue on GH
+			$output['issue'] = $this->number;
 			$output['actionReturnsItems'] = true;
 		}
 
