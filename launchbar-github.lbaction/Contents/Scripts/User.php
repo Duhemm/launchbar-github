@@ -10,17 +10,30 @@ class User {
 
 	public function __construct($name) {
 
-		if($name == 'my') {
-			$url = "/user/repos";
-		} else {
-			$url = "/users/" . $name . "/repos";
-		}
-
-		$rawUserRepos = HTTPClient::getInstance()->getJSON($url);
 		$this->name = $name;
 
-		foreach ($rawUserRepos as $repo) {
-			$this->repos[] = new Repository($this, $repo);
+		if($name == 'my') {
+			// Get repos owned by the authenticated user
+			$rawUserRepos = HTTPClient::getInstance()->getJSON("/user/repos");
+			foreach ($rawUserRepos as $repo) {
+				$this->repos[] = new Repository($this, $repo);
+			}
+
+			// Get repos owned by any organization the authenticated user belongs to
+			$rawOrganizations = HTTPClient::getInstance()->getJSON("/user/orgs");
+			foreach ($rawOrganizations as $org) {
+				$rawOrgRepos = HTTPClient::getInstance()->getJSON("/orgs/" . $org->login . "/repos");
+
+				foreach ($rawOrgRepos as $repo) {
+					$this->repos[] = new Repository($this, $repo);
+				}
+			}
+		} else {
+			$rawUserRepos = HTTPClient::getInstance()->getJSON("/users/" . $name . "/repos");
+
+			foreach ($rawUserRepos as $repo) {
+				$this->repos[] = new Repository($this, $repo);
+			}
 		}
 	}
 
