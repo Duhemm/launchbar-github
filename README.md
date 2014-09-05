@@ -10,17 +10,23 @@
  2. Place `launchbar-github.lbaction` in `~/Library/Application Support/LaunchBar/Actions`
  3. Type `github` in LaunchBar
 
+## Nothing works after an update !
+
+This is most likely due to a change in the database schema. To update the schema, please run `!update`. You won't need to login again (your token won't be erased).
+
 ## How to authenticate ?
 
- 1. Create a [personnal access token](https://github.com/settings/applications). Name it "GitHub for LaunchBar" and leave the default permissions.
- 2. Copy the personnal access token in your clipboard, and type in the GitHub action for LaunchBar : `!login <paste-your-token>`
+ 1. Create a [personal access token](https://github.com/settings/applications). Name it "GitHub for LaunchBar" and leave the default permissions.
+ 2. Copy the personal access token in your clipboard, and type in the GitHub action for LaunchBar : `!login <paste-your-token>`
  3. You're authenticated ! If everything went well, you should see all your repos by typing `my` in GitHub action for LaunchBar.
 
-To log out, simply type `!logout`.
+To log out, simply type `!logout`. Please note that your token will be lost.
 
 ## What's supported ?
 
  * Authentication !
+ 
+ * Pagination
 
  * Get the repositories of a user  
    ![Get the repositories](http://s28.postimg.org/6qyjk2zzx/Screen_Shot_2014_06_14_at_00_05_42.png)
@@ -44,6 +50,7 @@ Please note that `username repo` and `username/repo` are equivalent.
  * `!login <your-access-token>` will register the token so that it is used for all queries.
  * `!logout` will remove the token. All subsequent queries won't use it.
  * `!empty` will empty the cache.
+ * `!update` will update the database schema (sometimes needed after an update).
  * `my` will list your repositories.
  * `my repo` will list all your repositories whose name contain `repo` or actions related to `repo`.
  * `username` will display all repositories from `username`.
@@ -55,5 +62,6 @@ Please note that `username repo` and `username/repo` are equivalent.
 
 ## Thanks to...
 
-Thanks to [Stephen Hutchings](http://typicons.com) for the very nice icons !
+ * Thanks to [Stephen Hutchings](http://typicons.com) for the very nice icons !
+ * @leonardt and @zeno for the bug reports.
 
