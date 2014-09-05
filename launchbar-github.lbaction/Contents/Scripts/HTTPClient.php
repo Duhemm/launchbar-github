@@ -11,6 +11,19 @@ class HTTPClient {
 	private $hostname = "https://api.github.com";
 	private $token = "";
 
+	private $dbSchema = "
+		CREATE TABLE settings (
+			'TOKEN' VARCHAR(255)
+		);
+		CREATE TABLE cache (
+			'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
+			'URL' VARCHAR(255) UNIQUE,
+			'HASMORE' VARCHAR(255) UNIQUE,
+			'RESULTS' LONGTEXT,
+			'INSERTED' INTEGER
+		)
+	";
+
 	public static function getInstance() {
 		if(HTTPClient::$instance == null) {
 			HTTPClient::$instance = new HTTPClient();
@@ -134,6 +147,15 @@ class HTTPClient {
 		$this->pdo->prepare("DELETE FROM cache")->execute();
 	}
 
+	public function updateDB() {
+		$this->pdo->exec("DROP TABLE settings");
+		$this->pdo->exec("DROP TABLE cache");
+
+		$this->pdo->exec($this->dbSchema);
+
+		$this->updateToken($this->token);
+	}
+
 	private function __construct() {
 
 		$this->cookies = $_SERVER['LB_CACHE_PATH'] . '/cookies';
@@ -151,19 +173,7 @@ class HTTPClient {
 
 		// If the database did not exist, create the tables
 		if(!$existed) {
-			$this->pdo->exec("
-				CREATE TABLE settings (
-					'TOKEN' VARCHAR(255)
-				);
-
-				CREATE TABLE cache (
-					'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
-					'URL' VARCHAR(255) UNIQUE,
-					'HASMORE' VARCHAR(255) UNIQUE,
-					'RESULTS' LONGTEXT,
-					'INSERTED' INTEGER
-				)
-			");
+			$this->pdo->exec($this->dbSchema);
 
 			chmod($dbPath, 0600); // The DB will contain the access token, don't let others read it !
 		} else {

@@ -200,6 +200,14 @@ if($arg == NULL || !isset($arg->act)) {
 						));
 						break;
 
+					case 'update':
+						HttpClient::getInstance()->updateDB();
+
+						echo json_encode(array(
+							'title' => 'The database has been updated.'
+						));
+						break;
+
 					default:
 						echo json_encode(array(
 							'title' => 'Unknown action'
