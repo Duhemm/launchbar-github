@@ -110,7 +110,7 @@ function run($arg) {
 				}
 				$repos = $arg->user->getReposNamed($arg->repo);
 				if(count($repos) == 1) $arg->repo = $repos[0];
-				else getMatchingRepo($repos, $arg->repo);
+				else $arg->repo = getMatchingRepo($repos, $arg->repo);
 			}
 			echo json_encode($arg->repo->showBranches());
 			break;

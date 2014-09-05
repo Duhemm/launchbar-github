@@ -46,11 +46,15 @@ class Issue {
 	}
 
 	public function getComments() {
-		$rawComments = HTTPClient::getInstance()->getJSON("/repos/" . $this->repo->getFullName() . "/issues/" . $this->number . "/comments");
+		list($moreComments, $rawComments) = HTTPClient::getInstance()->getJSON("/repos/" . $this->repo->getFullName() . "/issues/" . $this->number . "/comments");
 		$output = array();
 
 		foreach($rawComments as $rawComment) {
 			$output[] = new Comment($this, $rawComment);
+		}
+
+		if($moreComments) {
+			$output[] = new MoreLink($this->html_url, "View more on GitHub");
 		}
 
 		return $output;

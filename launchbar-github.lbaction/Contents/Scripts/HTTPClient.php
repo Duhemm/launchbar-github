@@ -5,6 +5,7 @@ class HTTPClient {
 	private static $instance = null;
 	private static $ONE_HOUR = 3600;
 	private static $HTTP_OK = 200;
+	private static $AUTO_PAGE_LIMIT = 5;
 	private $pdo = null;
 	private $cookies = null;
 	private $hostname = "https://api.github.com";
@@ -19,17 +20,22 @@ class HTTPClient {
 	}
 
 	/**
-	 * Performs an HTTP request and returns the raw body
+	 * Performs an HTTP request and returns the raw body.
+	 * If the result spans over multiple pages (Link header), then
+	 * it automatically gets pages up to AUTO_PAGE_LIMIT and appends
+	 * the results.
 	 * @param  String  $url      URL
 	 * @param  Integer $status   Status code of the request
 	 * @param  array   $POSTdata Fields and their value to add in a POST request
-	 * @return String            Body of the HTTP response
+	 * @return array             2-elements array where first element is the address
+	 *                           of the next batch if there are more, false o/w. The
+	 *                           second element is the result of the request.
 	 */
-	public function request($url, &$status, $POSTdata = array()) {
+	private function request($url, &$status, $POSTdata = array()) {
 
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		curl_setopt($ch, CURLOPT_HEADER, false);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_HEADER, true);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 		curl_setopt($ch, CURLOPT_COOKIEJAR, $this->cookies);
         curl_setopt($ch, CURLOPT_COOKIEFILE, $this->cookies);
@@ -39,7 +45,7 @@ class HTTPClient {
 
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_REFERER, $url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
 			'User-Agent: GitHub for LaunchBar'
 		));
@@ -49,12 +55,25 @@ class HTTPClient {
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($POSTdata));
 		}
 
-		$result = curl_exec($ch);
+		list($header, $body) = explode("\r\n\r\n", curl_exec($ch), 2);
 		$status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
 		curl_close($ch);
 
-		return $result;
+		if(preg_match("@^Link:.+<(.+?)>; rel=\"next\".+$@m", $header, $matches) && preg_match("@[?&]page=(\d+)@", $matches[1], $pageNumber)) {
+			if($pageNumber[1] > HTTPClient::$AUTO_PAGE_LIMIT)
+				return array($matches[1], $body);
+			else {
+				list($hasMore, $nextBatch) = $this->request($matches[1], $status, $POSTdata);
+
+				// We assume that if we receive a Link header, then the data is a big JSON array.
+				// We need to concatenate the arrays : [ r1, r2 ] [ r3, r4 ] ==> [ r1, r2, r3, r4 ]
+				$concatenatedArrays = substr($body, 0, -1) . ", " . substr($nextBatch, 1);
+				return array($hasMore, $concatenatedArrays);
+			}
+		}
+		else
+			return array(false, $body);
 	}
 
 	/**
@@ -81,11 +100,11 @@ class HTTPClient {
 
 		if($result === false) {
 
-			$result = $this->request($this->hostname . $url, $status);
+			list($hasMore, $result) = $this->request($this->hostname . $url, $status);
 
 			if($status == HTTPClient::$HTTP_OK) {
-				$insert = $this->pdo->prepare("INSERT INTO cache VALUES(NULL, ?, ?, ?)");
-				$insert->execute(array($url, $result, time()));
+				$insert = $this->pdo->prepare("INSERT INTO cache VALUES(NULL, ?, ?, ?, ?)");
+				$insert->execute(array($url, ($hasMore ? $hasMore : ""), $result, time()));
 			} else {
 				echo json_encode(array(
 					'title' => 'Query failed : ' . $url,
@@ -95,10 +114,11 @@ class HTTPClient {
 				exit(0);
 			}
 		} else {
+			$hasMore = $result['HASMORE'];
 			$result = $result['RESULTS'];
 		}
 
-		return json_decode($result, $associative);
+		return array($hasMore, json_decode($result, $associative));
 	}
 
 	public function updateToken($token) {
@@ -139,6 +159,7 @@ class HTTPClient {
 				CREATE TABLE cache (
 					'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
 					'URL' VARCHAR(255) UNIQUE,
+					'HASMORE' VARCHAR(255) UNIQUE,
 					'RESULTS' LONGTEXT,
 					'INSERTED' INTEGER
 				)

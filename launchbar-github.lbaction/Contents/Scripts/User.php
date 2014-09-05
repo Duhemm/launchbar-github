@@ -2,6 +2,7 @@
 
 require_once('HTTPClient.php');
 require_once('Repository.php');
+require_once('MoreLink.php');
 
 class User {
 
@@ -14,25 +15,35 @@ class User {
 
 		if($name == 'my') {
 			// Get repos owned by the authenticated user
-			$rawUserRepos = HTTPClient::getInstance()->getJSON("/user/repos");
+			list($moreUserRepos, $rawUserRepos) = HTTPClient::getInstance()->getJSON("/user/repos");
 			foreach ($rawUserRepos as $repo) {
 				$this->repos[] = new Repository($this, $repo);
 			}
 
 			// Get repos owned by any organization the authenticated user belongs to
-			$rawOrganizations = HTTPClient::getInstance()->getJSON("/user/orgs");
+			list($moreOrgs, $rawOrganizations) = HTTPClient::getInstance()->getJSON("/user/orgs");
 			foreach ($rawOrganizations as $org) {
-				$rawOrgRepos = HTTPClient::getInstance()->getJSON("/orgs/" . $org->login . "/repos");
+				list($moreOrgRepos, $rawOrgRepos) = HTTPClient::getInstance()->getJSON("/orgs/" . $org->login . "/repos");
 
 				foreach ($rawOrgRepos as $repo) {
 					$this->repos[] = new Repository($this, $repo);
 				}
 			}
+
+			if($moreUserRepos || $moreOrgs || $moreOrgRepos) {
+				$userRealName = $repos[0]->owner_name;
+				$this->repos[] = new MoreLink("https://github.com/$userRealName?tab=repositories", "View more on GitHub");
+			}
+
 		} else {
-			$rawUserRepos = HTTPClient::getInstance()->getJSON("/users/" . $name . "/repos");
+			list($moreUserRepos, $rawUserRepos) = HTTPClient::getInstance()->getJSON("/users/" . $name . "/repos");
 
 			foreach ($rawUserRepos as $repo) {
 				$this->repos[] = new Repository($this, $repo);
+			}
+
+			if($moreUserRepos) {
+				$this->repos[] = new MoreLink("https://github.com/$name?tab=repositories", "View more on GitHub");
 			}
 		}
 	}
@@ -45,7 +56,7 @@ class User {
 		$output = array();
 
 		foreach($this->repos as $repo) {
-			if(stripos($repo->getName(), $name) !== false) {
+			if($repo instanceOf Repository && stripos($repo->getName(), $name) !== false) {
 				$output[] = $repo;
 			}
 		}
@@ -61,7 +72,7 @@ class User {
 		$result = array();
 
 		foreach($this->repos as $repo) {
-			if($repo->getName() == $name) $result[] = $repo;
+			if($repo instanceOf Repository && $repo->getName() == $name) $result[] = $repo;
 		}
 
 		if(empty($result))

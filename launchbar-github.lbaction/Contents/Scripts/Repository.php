@@ -10,6 +10,7 @@ class Repository {
 	private $user;
 
 	private $html_url;
+	private $owner_name;
 	private $name;
 	private $full_name;
 	private $description;
@@ -19,6 +20,7 @@ class Repository {
 		$this->user = $user;
 
 		$this->html_url = $rawRepo->html_url;
+		$this->owner_name = $rawRepo->owner->login;
 		$this->name = $rawRepo->name;
 		$this->full_name = $rawRepo->full_name;
 		$this->description = $rawRepo->description;
@@ -29,6 +31,10 @@ class Repository {
 
 	public function getHtmlUrl() {
 		return $this->html_url;
+	}
+
+	public function getOwnerName() {
+		return $this->owner_name;
 	}
 
 	public function getName() {
@@ -59,18 +65,22 @@ class Repository {
 	}
 
 	public function getIssue($number) {
-		$rawIssue = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/issues/" . $number);
+		list($unused, $rawIssue) = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/issues/" . $number);
 
 		return new Issue($this, $rawIssue);
 	}
 
 	public function getIssues() {
-		$rawIssues = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/issues?state=all");
+		list($moreIssues, $rawIssues) = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/issues?state=all");
 
 		$output = array();
 
 		foreach($rawIssues as $rawIssue) {
 			$output[] = new Issue($this, $rawIssue);
+		}
+
+		if($moreIssues) {
+			$output[] = new MoreLink($this->html_url . "/issues", "View more on GitHub");
 		}
 
 		return $output;
@@ -82,14 +92,6 @@ class Repository {
 
 		$output = array();
 
-		// Display a link to all issues
-		$output[] = array(
-			'title' => "View all issues",
-			'subtitle' => $this->html_url . "/issues",
-			'icon' => 'link.png',
-			'url' => $this->html_url . "/issues"
-		);
-
 		foreach($issues as $issue) {
 			$output[] = $issue->display(false);
 		}
@@ -98,12 +100,16 @@ class Repository {
 	}
 
 	public function getPullRequests() {
-		$rawPulls = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/pulls?state=all");
+		list($morePulls, $rawPulls) = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/pulls?state=all");
 
 		$output = array();
 
 		foreach($rawPulls as $rawPull) {
 			$output[] = new PullRequest($this, $rawPull);
+		}
+
+		if($morePulls) {
+			$output[] = new MoreLink($this->html_url . "/pulls", "View more on GitHub");
 		}
 
 		return $output;
@@ -115,14 +121,6 @@ class Repository {
 
 		$output = array();
 
-		// Display a link to all PRs
-		$output[] = array(
-			'title' => "View all pull requests",
-			'subtitle' => $this->html_url . "/pulls",
-			'icon' => 'link.png',
-			'url' => $this->html_url . "/pulls"
-		);
-
 		foreach ($pulls as $pull) {
 			$output[] = $pull->display(false);
 		}
@@ -131,12 +129,16 @@ class Repository {
 	}
 
 	public function getBranches() {
-		$rawBranches = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/branches");
+		list($moreBranches, $rawBranches) = HTTPClient::getInstance()->getJSON("/repos/" . $this->full_name . "/branches");
 
 		$output = array();
 
 		foreach($rawBranches as $rawBranch) {
 			$output[] = new Branch($this, $rawBranch);
+		}
+
+		if($moreBranches) {
+			$output[] = new MoreLink($this->html_url . "/branches", "View more on GitHub");
 		}
 
 		return $output;
